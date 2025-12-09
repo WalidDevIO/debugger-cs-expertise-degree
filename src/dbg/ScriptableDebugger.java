@@ -10,6 +10,7 @@ import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.StepRequest;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -20,11 +21,16 @@ public class ScriptableDebugger {
     private Class<?> debugClass;
     private VirtualMachine vm;
 
+    enum ScriptableAction {
+        NONE,
+        STEP,
+    }
+
     public VirtualMachine connectAndLaunchVM() throws IOException, IllegalConnectorArgumentsException, VMStartException {
         LaunchingConnector launchingConnector = Bootstrap.virtualMachineManager().defaultConnector();
         Map<String, Connector.Argument> arguments = launchingConnector.defaultArguments();
         arguments.get("main").setValue(debugClass.getName());
-        VirtualMachine vm = launchingConnector.launch(arguments);
+        vm = launchingConnector.launch(arguments);
         return vm;
     }
     public void attachTo(Class<?> debuggeeClass) {
@@ -34,22 +40,16 @@ public class ScriptableDebugger {
             vm = connectAndLaunchVM();
             enableClassPrepareRequest(vm);
             startDebugger();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (IllegalConnectorArgumentsException e) {
-            e.printStackTrace();
-        } catch (VMStartException e) {
-            e.printStackTrace();
-            System.out.println(e.toString());
         } catch (VMDisconnectedException e) {
-            System.out.println("Virtual Machine is disconnected: " + e.toString());
+            System.out.println("Virtual Machine is disconnected: " + e);
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace()
+            ;
         }
     }
 
-    public void startDebugger() throws VMDisconnectedException, InterruptedException, AbsentInformationException {
-        EventSet eventSet = null;
+    public void startDebugger() throws VMDisconnectedException, InterruptedException, AbsentInformationException, IOException {
+        EventSet eventSet;
         while ((eventSet = vm.eventQueue().remove()) != null) {
             for (Event event : eventSet) {
                 System.out.println(event.toString());
@@ -61,17 +61,23 @@ public class ScriptableDebugger {
                         reader.transferTo(writer);
                         writer.flush() ;
                     } catch(IOException e) {
-                        System.out.println("Target VM inputstream reading error.") ;
+                        System.out.println("Target VM input stream reading error.") ;
                     }
                     return;
                 }
 
                 if(event instanceof ClassPrepareEvent) {
-                    setBreakPoint(debugClass.getName(), 6) ;
+                    setBreakPoint(debugClass.getName(), 6);
                 }
 
-                if (event instanceof BreakpointEvent) {
-                    enableStepRequest((BreakpointEvent) event);
+                if (event instanceof BreakpointEvent be) {
+                    if(readCommand() == ScriptableAction.STEP) {
+                        enableStepRequest(be);
+                    }
+                }
+
+                if (event instanceof StepEvent) {
+                    readCommand();
                 }
                 vm.resume();
             }
@@ -101,6 +107,16 @@ public class ScriptableDebugger {
         ClassPrepareRequest classPrepareRequest = vm.eventRequestManager().createClassPrepareRequest();
         classPrepareRequest.addClassFilter(debugClass.getName());
         classPrepareRequest.enable();
+    }
+
+    private ScriptableAction readCommand() throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        String command = reader.readLine();
+
+        if ("step".equals(command)) {
+            return ScriptableAction.STEP;
+        }
+        return ScriptableAction.NONE;
     }
 
 }
