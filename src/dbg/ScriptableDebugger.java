@@ -9,6 +9,10 @@ import com.sun.jdi.event.*;
 import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.StepRequest;
+import commands.CommandRegistry;
+import commands.ContinueCommand;
+import commands.StepCommand;
+import commands.StepOverCommand;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,10 +24,12 @@ public class ScriptableDebugger {
 
     private Class<?> debugClass;
     private VirtualMachine vm;
+    private final CommandRegistry commandRegistry = new CommandRegistry();
 
-    enum ScriptableAction {
-        NONE,
-        STEP,
+    public ScriptableDebugger() {
+        commandRegistry.register(new ContinueCommand(this));
+        commandRegistry.register(new StepCommand(this));
+        commandRegistry.register(new StepOverCommand(this));
     }
 
     public VirtualMachine connectAndLaunchVM() throws IOException, IllegalConnectorArgumentsException, VMStartException {
@@ -68,20 +74,23 @@ public class ScriptableDebugger {
 
                 if(event instanceof ClassPrepareEvent) {
                     setBreakPoint(debugClass.getName(), 6);
+                    setBreakPoint(debugClass.getName(), 9);
                 }
 
                 if (event instanceof BreakpointEvent be) {
-                    if(readCommand() == ScriptableAction.STEP) {
-                        enableStepRequest(be);
-                    }
+                    readCommand(be);
                 }
 
-                if (event instanceof StepEvent) {
-                    readCommand();
+                if (event instanceof StepEvent se) {
+                    readCommand(se);
                 }
                 vm.resume();
             }
         }
+    }
+
+    public VirtualMachine getVm() {
+        return vm;
     }
 
     public void setBreakPoint(String className, int lineNumber) throws AbsentInformationException {
@@ -94,29 +103,21 @@ public class ScriptableDebugger {
         }
     }
 
-    public void enableStepRequest(LocatableEvent event) {
-        StepRequest stepRequest = vm.eventRequestManager().createStepRequest(
-                event.thread(),
-                StepRequest.STEP_MIN,
-                StepRequest.STEP_OVER
-        );
-        stepRequest.enable();
-    }
-
     public void enableClassPrepareRequest(VirtualMachine vm) {
         ClassPrepareRequest classPrepareRequest = vm.eventRequestManager().createClassPrepareRequest();
         classPrepareRequest.addClassFilter(debugClass.getName());
         classPrepareRequest.enable();
     }
 
-    private ScriptableAction readCommand() throws IOException {
+    private void readCommand(LocatableEvent event) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         String command = reader.readLine();
 
-        if ("step".equals(command)) {
-            return ScriptableAction.STEP;
+        if(commandRegistry.hasCommand(command)) {
+            commandRegistry.getCommand(command).execute(event);
+        } else {
+            System.out.println("Commande " + command + " inexistante.");
         }
-        return ScriptableAction.NONE;
     }
 
 }
