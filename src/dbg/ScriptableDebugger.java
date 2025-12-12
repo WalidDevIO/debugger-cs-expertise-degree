@@ -39,7 +39,11 @@ public class ScriptableDebugger {
                 new MethodCommand(this),
                 new ArgumentsCommand(this),
                 new PrintVarCommand(this),
-                new BreakCommand(this)
+                new BreakCommand(this),
+                new BreakpointsCommand(this),
+                new BreakOnceCommand(this),
+                new BreakOnCountCommand(this),
+                new BreakBeforeMethodCallCommand(this)
         );
         commandList.forEach(commandRegistry::register);
     }
@@ -83,8 +87,30 @@ public class ScriptableDebugger {
                     return;
                 }
 
-                if(event instanceof ClassPrepareEvent) {
-                    setBreakPoint(debugClass.getName(), 6);
+                if(event instanceof ClassPrepareEvent cpe) {
+                    // Vérifier si c'est la classe principale qu'on débugge
+                    if(cpe.referenceType().name().equals(debugClass.getName())) {
+                        // Trouver la méthode main
+                        try {
+                            for(Method method : cpe.referenceType().methods()) {
+                                if(method.name().equals("main") && method.isStatic()) {
+                                    // Trouver la première ligne exécutable du main
+                                    List<Location> locations = method.allLineLocations();
+                                    if(!locations.isEmpty()) {
+                                        Location firstLocation = locations.get(0);
+                                        BreakpointRequest bpReq = vm.eventRequestManager()
+                                                .createBreakpointRequest(firstLocation);
+                                        bpReq.enable();
+                                        System.out.println("Breakpoint set at main() line " +
+                                                firstLocation.lineNumber());
+                                    }
+                                    break;
+                                }
+                            }
+                        } catch(AbsentInformationException e) {
+                            System.out.println("Could not set breakpoint on main: " + e.getMessage());
+                        }
+                    }
                 }
 
                 if (event instanceof BreakpointEvent be) {
