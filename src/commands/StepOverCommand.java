@@ -25,6 +25,7 @@ public class StepOverCommand extends Command {
             stepRequest.enable();
 
             System.out.println("Step over enabled");
+            vm.resume();
         } catch (Exception e) {
             System.out.println("Error executing step-over: " + e.getMessage());
         }

@@ -72,6 +72,7 @@ public class ScriptableDebugger {
                 if(event instanceof ClassPrepareEvent) {
                     setBreakPoint(debugClass.getName(), 6);
                     setBreakPoint(debugClass.getName(), 9);
+                    vm.resume();
                 }
 
                 if (event instanceof BreakpointEvent be) {
@@ -81,7 +82,6 @@ public class ScriptableDebugger {
                 if (event instanceof StepEvent se) {
                     readCommand(se);
                 }
-                vm.resume();
             }
         }
     }
