@@ -3,14 +3,14 @@ package commands;
 import com.sun.jdi.event.LocatableEvent;
 import dbg.ScriptableDebugger;
 
-public class ContinueCommand extends Command {
+public class ContinueCommand extends Command<Void> {
 
     public ContinueCommand(ScriptableDebugger debugger) {
         super(debugger);
     }
 
     @Override
-    public void execute(LocatableEvent event, String[] args) {
+    public Void execute(LocatableEvent event, String[] args) {
         try {
             var vm = getVm();
             vm.eventRequestManager().deleteEventRequests(vm.eventRequestManager().stepRequests());
@@ -18,6 +18,7 @@ public class ContinueCommand extends Command {
         } catch (Exception e) {
             System.out.println("Error executing continue: " + e.getMessage());
         }
+        return null;
     }
 
     @Override

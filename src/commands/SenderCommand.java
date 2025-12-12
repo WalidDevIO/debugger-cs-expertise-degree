@@ -6,19 +6,19 @@ import com.sun.jdi.StackFrame;
 import com.sun.jdi.event.LocatableEvent;
 import dbg.ScriptableDebugger;
 
-public class SenderCommand extends Command {
+public class SenderCommand extends Command<Void> {
 
     public SenderCommand(ScriptableDebugger debugger) {
         super(debugger);
     }
 
     @Override
-    public void execute(LocatableEvent event, String[] args) {
+    public Void execute(LocatableEvent event, String[] args) {
         try {
             if (event.thread().frameCount() < 2) {
                 System.out.println("No sender (top of call stack)");
                 getDebugger().readCommand(event);
-                return;
+                return null;
             }
 
             StackFrame callerFrame = event.thread().frame(1);
@@ -35,6 +35,7 @@ public class SenderCommand extends Command {
             System.out.println("Error getting sender: " + e.getMessage());
         }
         getDebugger().readCommand(event);
+        return null;
     }
 
     @Override

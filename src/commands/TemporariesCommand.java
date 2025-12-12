@@ -4,14 +4,14 @@ import com.sun.jdi.*;
 import com.sun.jdi.event.LocatableEvent;
 import dbg.ScriptableDebugger;
 
-public class TemporariesCommand extends Command {
+public class TemporariesCommand extends Command<Void> {
 
     public TemporariesCommand(ScriptableDebugger debugger) {
         super(debugger);
     }
 
     @Override
-    public void execute(LocatableEvent event, String[] args) {
+    public Void execute(LocatableEvent event, String[] args) {
         try {
             StackFrame frame = event.thread().frame(0);
             System.out.println("Temporary variables:");
@@ -28,6 +28,7 @@ public class TemporariesCommand extends Command {
             System.out.println("Error getting temporaries: " + e.getMessage());
         }
         getDebugger().readCommand(event);
+        return null;
     }
 
     private String formatValue(Value value) {

@@ -9,19 +9,19 @@ import dbg.ScriptableDebugger;
 
 import java.util.List;
 
-public class BreakOnceCommand extends Command {
+public class BreakOnceCommand extends Command<Void> {
 
     public BreakOnceCommand(ScriptableDebugger debugger) {
         super(debugger);
     }
 
     @Override
-    public void execute(LocatableEvent event, String[] args) {
+    public Void execute(LocatableEvent event, String[] args) {
         if (args.length < 2) {
             System.out.println("Error: filename and line number required");
             System.out.println("Usage: break-once <filename> <lineNumber>");
             getDebugger().readCommand(event);
-            return;
+            return null;
         }
 
         String filename = args[0];
@@ -32,7 +32,7 @@ public class BreakOnceCommand extends Command {
         } catch (NumberFormatException e) {
             System.out.println("Error: line number must be an integer");
             getDebugger().readCommand(event);
-            return;
+            return null;
         }
 
         try {
@@ -68,6 +68,7 @@ public class BreakOnceCommand extends Command {
         }
 
         getDebugger().readCommand(event);
+        return null;
     }
 
     @Override

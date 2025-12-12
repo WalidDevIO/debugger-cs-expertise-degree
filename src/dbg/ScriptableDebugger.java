@@ -29,7 +29,7 @@ public class ScriptableDebugger {
                 new ContinueCommand(this),
                 new StepCommand(this),
                 new StepOverCommand(this),
-                new HelpCommand(this, commandRegistry),
+                new HelpCommand(this),
                 new FrameCommand(this),
                 new TemporariesCommand(this),
                 new StackCommand(this),
@@ -126,6 +126,10 @@ public class ScriptableDebugger {
 
     public VirtualMachine getVm() {
         return vm;
+    }
+
+    public CommandRegistry getCommandRegistry() {
+        return commandRegistry;
     }
 
     public void enableClassPrepareRequest() {

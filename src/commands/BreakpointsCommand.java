@@ -6,21 +6,21 @@ import com.sun.jdi.event.LocatableEvent;
 import com.sun.jdi.request.BreakpointRequest;
 import dbg.ScriptableDebugger;
 
-public class BreakpointsCommand extends Command {
+public class BreakpointsCommand extends Command<Void> {
 
     public BreakpointsCommand(ScriptableDebugger debugger) {
         super(debugger);
     }
 
     @Override
-    public void execute(LocatableEvent event, String[] args) {
+    public Void execute(LocatableEvent event, String[] args) {
         try {
             var breakpoints = getVm().eventRequestManager().breakpointRequests();
 
             if (breakpoints.isEmpty()) {
                 System.out.println("No active breakpoints");
                 getDebugger().readCommand(event);
-                return;
+                return null;
             }
 
             System.out.println("Active breakpoints:");
@@ -47,6 +47,7 @@ public class BreakpointsCommand extends Command {
         }
 
         getDebugger().readCommand(event);
+        return null;
     }
 
     @Override

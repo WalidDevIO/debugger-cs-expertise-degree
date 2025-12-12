@@ -6,14 +6,14 @@ import com.sun.jdi.StackFrame;
 import com.sun.jdi.event.LocatableEvent;
 import dbg.ScriptableDebugger;
 
-public class ReceiverCommand extends Command {
+public class ReceiverCommand extends Command<Void> {
 
     public ReceiverCommand(ScriptableDebugger debugger) {
         super(debugger);
     }
 
     @Override
-    public void execute(LocatableEvent event, String[] args) {
+    public Void execute(LocatableEvent event, String[] args) {
         try {
             StackFrame frame = event.thread().frame(0);
             ObjectReference thisObject = frame.thisObject();
@@ -29,6 +29,7 @@ public class ReceiverCommand extends Command {
             System.out.println("Error getting receiver: " + e.getMessage());
         }
         getDebugger().readCommand(event);
+        return null;
     }
 
     @Override

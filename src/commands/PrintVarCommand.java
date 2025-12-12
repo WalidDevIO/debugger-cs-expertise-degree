@@ -4,19 +4,19 @@ import com.sun.jdi.*;
 import com.sun.jdi.event.LocatableEvent;
 import dbg.ScriptableDebugger;
 
-public class PrintVarCommand extends Command {
+public class PrintVarCommand extends Command<Void> {
 
     public PrintVarCommand(ScriptableDebugger debugger) {
         super(debugger);
     }
 
     @Override
-    public void execute(LocatableEvent event, String[] args) {
+    public Void execute(LocatableEvent event, String[] args) {
         if (args.length == 0) {
             System.out.println("Error: Variable name required");
             System.out.println("Usage: print-var <varName>");
             getDebugger().readCommand(event);
-            return;
+            return null;
         }
 
         String varName = args[0];
@@ -31,7 +31,7 @@ public class PrintVarCommand extends Command {
                     Value value = frame.getValue(localVar);
                     System.out.println(varName + " = " + formatValue(value));
                     getDebugger().readCommand(event);
-                    return;
+                    return null;
                 }
             } catch (AbsentInformationException e) {
                 // Pas d'info sur les variables locales, continuer avec les fields
@@ -45,7 +45,7 @@ public class PrintVarCommand extends Command {
                     Value value = thisObject.getValue(field);
                     System.out.println(varName + " = " + formatValue(value));
                     getDebugger().readCommand(event);
-                    return;
+                    return null;
                 }
             }
 
@@ -58,6 +58,7 @@ public class PrintVarCommand extends Command {
         }
 
         getDebugger().readCommand(event);
+        return null;
     }
 
     private String formatValue(Value value) {

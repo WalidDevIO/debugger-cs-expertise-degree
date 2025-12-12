@@ -6,14 +6,14 @@ import com.sun.jdi.StackFrame;
 import com.sun.jdi.event.LocatableEvent;
 import dbg.ScriptableDebugger;
 
-public class StackCommand extends Command {
+public class StackCommand extends Command<Void> {
 
     public StackCommand(ScriptableDebugger debugger) {
         super(debugger);
     }
 
     @Override
-    public void execute(LocatableEvent event, String[] args) {
+    public Void execute(LocatableEvent event, String[] args) {
         try {
             System.out.println("Call stack:");
             int depth = 0;
@@ -31,6 +31,7 @@ public class StackCommand extends Command {
             System.out.println("Error getting stack: " + e.getMessage());
         }
         getDebugger().readCommand(event);
+        return null;
     }
 
     @Override

@@ -3,13 +3,10 @@ package commands;
 import com.sun.jdi.event.LocatableEvent;
 import dbg.ScriptableDebugger;
 
-public class HelpCommand extends Command {
+public class HelpCommand extends Command<Void> {
 
-    private final CommandRegistry cr;
-
-    public HelpCommand(ScriptableDebugger debugger, CommandRegistry cr) {
+    public HelpCommand(ScriptableDebugger debugger) {
         super(debugger);
-        this.cr = cr;
     }
 
     @Override
@@ -23,13 +20,14 @@ public class HelpCommand extends Command {
     }
 
     @Override
-    public void execute(LocatableEvent event, String[] args) {
+    public Void execute(LocatableEvent event, String[] args) {
         System.out.println("JAVA Debugger help menu");
         System.out.println("-----------------------");
-        for(Command command : cr.getCommands()) {
+        for(Command command : getDebugger().getCommandRegistry().getCommands()) {
             System.out.println(command.getName() + " : " + command.getDescription());
         }
         getDebugger().readCommand(event);
+        return null;
     }
 
 }

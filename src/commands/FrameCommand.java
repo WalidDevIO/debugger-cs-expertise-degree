@@ -6,14 +6,14 @@ import com.sun.jdi.StackFrame;
 import com.sun.jdi.event.LocatableEvent;
 import dbg.ScriptableDebugger;
 
-public class FrameCommand extends Command {
+public class FrameCommand extends Command<Void> {
 
     public FrameCommand(ScriptableDebugger debugger) {
         super(debugger);
     }
 
     @Override
-    public void execute(LocatableEvent event, String[] args) {
+    public Void execute(LocatableEvent event, String[] args) {
         try {
             StackFrame frame = event.thread().frame(0);
             System.out.println("Current frame:");
@@ -31,6 +31,7 @@ public class FrameCommand extends Command {
             System.out.println("Error getting frame: " + e.getMessage());
         }
         getDebugger().readCommand(event);
+        return null;
     }
 
     @Override

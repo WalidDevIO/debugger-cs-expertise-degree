@@ -4,14 +4,14 @@ import com.sun.jdi.*;
 import com.sun.jdi.event.LocatableEvent;
 import dbg.ScriptableDebugger;
 
-public class ArgumentsCommand extends Command {
+public class ArgumentsCommand extends Command<Void> {
 
     public ArgumentsCommand(ScriptableDebugger debugger) {
         super(debugger);
     }
 
     @Override
-    public void execute(LocatableEvent event, String[] args) {
+    public Void execute(LocatableEvent event, String[] args) {
         try {
             StackFrame frame = event.thread().frame(0);
             Method method = frame.location().method();
@@ -34,6 +34,7 @@ public class ArgumentsCommand extends Command {
         }
 
         getDebugger().readCommand(event);
+        return null;
     }
 
     private String formatValue(Value value) {

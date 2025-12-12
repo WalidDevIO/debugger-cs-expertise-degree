@@ -4,14 +4,14 @@ import com.sun.jdi.event.LocatableEvent;
 import com.sun.jdi.request.StepRequest;
 import dbg.ScriptableDebugger;
 
-public class StepCommand extends Command {
+public class StepCommand extends Command<Void> {
 
     public StepCommand(ScriptableDebugger debugger) {
         super(debugger);
     }
 
     @Override
-    public void execute(LocatableEvent event, String[] args) {
+    public Void execute(LocatableEvent event, String[] args) {
         try {
             var vm = getVm();
             vm.eventRequestManager().deleteEventRequests(vm.eventRequestManager().stepRequests());
@@ -28,6 +28,7 @@ public class StepCommand extends Command {
         } catch (Exception e) {
             System.out.println("Error executing step: " + e.getMessage());
         }
+        return null;
     }
 
     @Override

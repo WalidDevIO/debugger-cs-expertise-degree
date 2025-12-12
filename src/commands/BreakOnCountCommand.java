@@ -9,19 +9,19 @@ import dbg.ScriptableDebugger;
 
 import java.util.List;
 
-public class BreakOnCountCommand extends Command {
+public class BreakOnCountCommand extends Command<Void> {
 
     public BreakOnCountCommand(ScriptableDebugger debugger) {
         super(debugger);
     }
 
     @Override
-    public void execute(LocatableEvent event, String[] args) {
+    public Void execute(LocatableEvent event, String[] args) {
         if (args.length < 3) {
             System.out.println("Error: filename, line number and count required");
             System.out.println("Usage: break-on-count <filename> <lineNumber> <count>");
             getDebugger().readCommand(event);
-            return;
+            return null;
         }
 
         String filename = args[0];
@@ -34,13 +34,13 @@ public class BreakOnCountCommand extends Command {
         } catch (NumberFormatException e) {
             System.out.println("Error: line number and count must be integers");
             getDebugger().readCommand(event);
-            return;
+            return null;
         }
 
         if (count <= 0) {
             System.out.println("Error: count must be positive");
             getDebugger().readCommand(event);
-            return;
+            return null;
         }
 
         try {
@@ -79,6 +79,7 @@ public class BreakOnCountCommand extends Command {
         }
 
         getDebugger().readCommand(event);
+        return null;
     }
 
     @Override
