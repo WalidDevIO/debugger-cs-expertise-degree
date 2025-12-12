@@ -17,6 +17,7 @@ public class SenderCommand extends Command {
         try {
             if (event.thread().frameCount() < 2) {
                 System.out.println("No sender (top of call stack)");
+                getDebugger().readCommand(event);
                 return;
             }
 

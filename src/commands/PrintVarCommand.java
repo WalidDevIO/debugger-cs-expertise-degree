@@ -30,6 +30,7 @@ public class PrintVarCommand extends Command {
                 if (localVar != null) {
                     Value value = frame.getValue(localVar);
                     System.out.println(varName + " = " + formatValue(value));
+                    getDebugger().readCommand(event);
                     return;
                 }
             } catch (AbsentInformationException e) {

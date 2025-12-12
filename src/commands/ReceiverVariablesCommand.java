@@ -18,6 +18,7 @@ public class ReceiverVariablesCommand extends Command {
 
             if (thisObject == null) {
                 System.out.println("No receiver (static method)");
+                getDebugger().readCommand(event);
                 return;
             }
 
