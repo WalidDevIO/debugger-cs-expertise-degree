@@ -6,16 +6,21 @@ import dbg.ScriptableDebugger;
 
 public abstract class Command {
 
-    protected final ScriptableDebugger dbg;
+    private final ScriptableDebugger dbg;
 
     public Command(ScriptableDebugger debugger) {
-        this.dbg = debugger;
+        dbg = debugger;
     }
 
     VirtualMachine getVm() {
         return dbg.getVm();
     }
-    public abstract void execute(LocatableEvent event);
+
+    ScriptableDebugger getDebugger() {
+        return dbg;
+    }
+
+    public abstract void execute(LocatableEvent event, String[] args);
     public abstract String getName();
     public abstract String getDescription();
 }

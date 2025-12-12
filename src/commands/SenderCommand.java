@@ -13,7 +13,7 @@ public class SenderCommand extends Command {
     }
 
     @Override
-    public void execute(LocatableEvent event) {
+    public void execute(LocatableEvent event, String[] args) {
         try {
             if (event.thread().frameCount() < 2) {
                 System.out.println("No sender (top of call stack)");
@@ -28,12 +28,12 @@ public class SenderCommand extends Command {
             } else {
                 System.out.println("Sender: " + callerThis.referenceType().name() + "@" + callerThis.uniqueID());
             }
-            dbg.readCommand(event);
         } catch (IncompatibleThreadStateException e) {
             System.out.println("Error: Thread not suspended - " + e.getMessage());
         } catch (Exception e) {
             System.out.println("Error getting sender: " + e.getMessage());
         }
+        getDebugger().readCommand(event);
     }
 
     @Override

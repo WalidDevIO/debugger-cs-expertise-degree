@@ -13,7 +13,7 @@ public class FrameCommand extends Command {
     }
 
     @Override
-    public void execute(LocatableEvent event) {
+    public void execute(LocatableEvent event, String[] args) {
         try {
             StackFrame frame = event.thread().frame(0);
             System.out.println("Current frame:");
@@ -25,12 +25,12 @@ public class FrameCommand extends Command {
             } catch (AbsentInformationException e) {
                 System.out.println("  Line/Source info not available");
             }
-            dbg.readCommand(event);
         } catch (IncompatibleThreadStateException e) {
             System.out.println("Error: Thread not suspended - " + e.getMessage());
         } catch (Exception e) {
             System.out.println("Error getting frame: " + e.getMessage());
         }
+        getDebugger().readCommand(event);
     }
 
     @Override

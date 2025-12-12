@@ -13,7 +13,7 @@ public class ReceiverCommand extends Command {
     }
 
     @Override
-    public void execute(LocatableEvent event) {
+    public void execute(LocatableEvent event, String[] args) {
         try {
             StackFrame frame = event.thread().frame(0);
             ObjectReference thisObject = frame.thisObject();
@@ -23,12 +23,12 @@ public class ReceiverCommand extends Command {
             } else {
                 System.out.println("Receiver (this): " + thisObject.referenceType().name() + "@" + thisObject.uniqueID());
             }
-            dbg.readCommand(event);
         } catch (IncompatibleThreadStateException e) {
             System.out.println("Error: Thread not suspended - " + e.getMessage());
         } catch (Exception e) {
             System.out.println("Error getting receiver: " + e.getMessage());
         }
+        getDebugger().readCommand(event);
     }
 
     @Override

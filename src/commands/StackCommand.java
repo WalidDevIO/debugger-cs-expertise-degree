@@ -13,7 +13,7 @@ public class StackCommand extends Command {
     }
 
     @Override
-    public void execute(LocatableEvent event) {
+    public void execute(LocatableEvent event, String[] args) {
         try {
             System.out.println("Call stack:");
             int depth = 0;
@@ -25,12 +25,12 @@ public class StackCommand extends Command {
                 System.out.println("  #" + depth + " " + className + "." + methodName + "() line " + lineNumber);
                 depth++;
             }
-            dbg.readCommand(event);
         } catch (IncompatibleThreadStateException e) {
             System.out.println("Error: Thread not suspended - " + e.getMessage());
         } catch (Exception e) {
             System.out.println("Error getting stack: " + e.getMessage());
         }
+        getDebugger().readCommand(event);
     }
 
     @Override

@@ -11,7 +11,7 @@ public class StepCommand extends Command {
     }
 
     @Override
-    public void execute(LocatableEvent event) {
+    public void execute(LocatableEvent event, String[] args) {
         try {
             var vm = getVm();
             vm.eventRequestManager().deleteEventRequests(vm.eventRequestManager().stepRequests());
@@ -19,7 +19,7 @@ public class StepCommand extends Command {
             StepRequest stepRequest = vm.eventRequestManager()
                 .createStepRequest(
                     event.thread(),
-                    StepRequest.STEP_LINE,
+                    StepRequest.STEP_MIN,
                     StepRequest.STEP_INTO
                 );
             stepRequest.enable();

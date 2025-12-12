@@ -14,6 +14,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class ScriptableDebugger {
@@ -23,16 +25,23 @@ public class ScriptableDebugger {
     private final CommandRegistry commandRegistry = new CommandRegistry();
 
     public ScriptableDebugger() {
-        commandRegistry.register(new ContinueCommand(this));
-        commandRegistry.register(new StepCommand(this));
-        commandRegistry.register(new StepOverCommand(this));
-        commandRegistry.register(new HelpCommand(this, commandRegistry));
-        commandRegistry.register(new FrameCommand(this));
-        commandRegistry.register(new TemporariesCommand(this));
-        commandRegistry.register(new StackCommand(this));
-        commandRegistry.register(new ReceiverCommand(this));
-        commandRegistry.register(new SenderCommand(this));
-        commandRegistry.register(new MethodCommand(this));
+        List<Command> commandList = List.of(
+                new ContinueCommand(this),
+                new StepCommand(this),
+                new StepOverCommand(this),
+                new HelpCommand(this, commandRegistry),
+                new FrameCommand(this),
+                new TemporariesCommand(this),
+                new StackCommand(this),
+                new ReceiverCommand(this),
+                new SenderCommand(this),
+                new ReceiverVariablesCommand(this),
+                new MethodCommand(this),
+                new ArgumentsCommand(this),
+                new PrintVarCommand(this),
+                new BreakCommand(this)
+        );
+        commandList.forEach(commandRegistry::register);
     }
 
     public VirtualMachine connectAndLaunchVM() throws IOException, IllegalConnectorArgumentsException, VMStartException {
@@ -76,7 +85,6 @@ public class ScriptableDebugger {
 
                 if(event instanceof ClassPrepareEvent) {
                     setBreakPoint(debugClass.getName(), 6);
-                    setBreakPoint(debugClass.getName(), 9);
                 }
 
                 if (event instanceof BreakpointEvent be) {
@@ -112,16 +120,22 @@ public class ScriptableDebugger {
         classPrepareRequest.enable();
     }
 
-    public void readCommand(LocatableEvent event) throws IOException {
+    public void readCommand(LocatableEvent event) {
         System.out.println("Debugger is at: " + event.toString());
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-        String command = reader.readLine();
 
-        if(commandRegistry.hasCommand(command)) {
-            commandRegistry.getCommand(command).execute(event);
-        } else {
-            System.out.println("Commande " + command + " inexistante.");
-            readCommand(event);
+        try {
+            String[] parts = reader.readLine().strip().split(" ");
+            String command = parts[0];
+            String[] args = Arrays.copyOfRange(parts, 1, parts.length);
+            if(commandRegistry.hasCommand(command)) {
+                commandRegistry.getCommand(command).execute(event, args);
+            } else {
+                System.out.println("Commande " + command + " inexistante.");
+                readCommand(event);
+            }
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
         }
     }
 

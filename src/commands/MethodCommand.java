@@ -13,7 +13,7 @@ public class MethodCommand extends Command {
     }
 
     @Override
-    public void execute(LocatableEvent event) {
+    public void execute(LocatableEvent event, String[] args) {
         try {
             StackFrame frame = event.thread().frame(0);
             Method method = frame.location().method();
@@ -25,12 +25,12 @@ public class MethodCommand extends Command {
             System.out.println("  Return type: " + method.returnTypeName());
             System.out.println("  Is static: " + method.isStatic());
             System.out.println("  Is constructor: " + method.isConstructor());
-            dbg.readCommand(event);
         } catch (IncompatibleThreadStateException e) {
             System.out.println("Error: Thread not suspended - " + e.getMessage());
         } catch (Exception e) {
             System.out.println("Error getting method: " + e.getMessage());
         }
+        getDebugger().readCommand(event);
     }
 
     @Override

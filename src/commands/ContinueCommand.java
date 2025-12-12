@@ -10,7 +10,7 @@ public class ContinueCommand extends Command {
     }
 
     @Override
-    public void execute(LocatableEvent event) {
+    public void execute(LocatableEvent event, String[] args) {
         try {
             var vm = getVm();
             vm.eventRequestManager().deleteEventRequests(vm.eventRequestManager().stepRequests());

@@ -4,9 +4,9 @@ import com.sun.jdi.*;
 import com.sun.jdi.event.LocatableEvent;
 import dbg.ScriptableDebugger;
 
-public class TemporariesCommand extends Command {
+public class ArgumentsCommand extends Command {
 
-    public TemporariesCommand(ScriptableDebugger debugger) {
+    public ArgumentsCommand(ScriptableDebugger debugger) {
         super(debugger);
     }
 
@@ -14,19 +14,25 @@ public class TemporariesCommand extends Command {
     public void execute(LocatableEvent event, String[] args) {
         try {
             StackFrame frame = event.thread().frame(0);
-            System.out.println("Temporary variables:");
+            Method method = frame.location().method();
 
-            for (LocalVariable var : frame.visibleVariables()) {
-                Value value = frame.getValue(var);
-                System.out.println("  " + var.name() + " → " + formatValue(value));
+            System.out.println("Method arguments:");
+
+            try {
+                for (LocalVariable arg : method.arguments()) {
+                    Value value = frame.getValue(arg);
+                    System.out.println("  " + arg.name() + " → " + formatValue(value));
+                }
+            } catch (AbsentInformationException e) {
+                System.out.println("Argument information not available (compile with -g)");
             }
+
         } catch (IncompatibleThreadStateException e) {
             System.out.println("Error: Thread not suspended - " + e.getMessage());
-        } catch (AbsentInformationException e) {
-            System.out.println("Local variable information not available");
         } catch (Exception e) {
-            System.out.println("Error getting temporaries: " + e.getMessage());
+            System.out.println("Error getting arguments: " + e.getMessage());
         }
+
         getDebugger().readCommand(event);
     }
 
@@ -40,11 +46,11 @@ public class TemporariesCommand extends Command {
 
     @Override
     public String getName() {
-        return "temporaries";
+        return "arguments";
     }
 
     @Override
     public String getDescription() {
-        return "Affiche les variables temporaires de la frame courante";
+        return "Affiche les arguments de la méthode courante";
     }
 }
