@@ -24,10 +24,15 @@ public class HelpCommand extends Command {
 
     @Override
     public void execute(LocatableEvent event) {
-        System.out.println("JAVA Debugger help menu");
-        System.out.println("-----------------------");
-        for(Command command : cr.getCommands()) {
-            System.out.println(command.getName() + " : " + command.getDescription());
+        try {
+            System.out.println("JAVA Debugger help menu");
+            System.out.println("-----------------------");
+            for(Command command : cr.getCommands()) {
+                System.out.println(command.getName() + " : " + command.getDescription());
+            }
+            dbg.readCommand(event);
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
         }
     }
 

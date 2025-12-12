@@ -56,6 +56,7 @@ public class ScriptableDebugger {
         while ((eventSet = vm.eventQueue().remove()) != null) {
             for (Event event : eventSet) {
                 System.out.println(event.toString());
+
                 if(event instanceof VMDisconnectEvent) {
                     System.out.println("----- Fin du programme.");
                     InputStreamReader reader = new InputStreamReader(vm.process().getInputStream());
@@ -72,7 +73,6 @@ public class ScriptableDebugger {
                 if(event instanceof ClassPrepareEvent) {
                     setBreakPoint(debugClass.getName(), 6);
                     setBreakPoint(debugClass.getName(), 9);
-                    vm.resume();
                 }
 
                 if (event instanceof BreakpointEvent be) {
@@ -82,6 +82,8 @@ public class ScriptableDebugger {
                 if (event instanceof StepEvent se) {
                     readCommand(se);
                 }
+
+                vm.resume();
             }
         }
     }
@@ -106,7 +108,7 @@ public class ScriptableDebugger {
         classPrepareRequest.enable();
     }
 
-    private void readCommand(LocatableEvent event) throws IOException {
+    public void readCommand(LocatableEvent event) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         String command = reader.readLine();
 

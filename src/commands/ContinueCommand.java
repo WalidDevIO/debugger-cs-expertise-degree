@@ -15,7 +15,6 @@ public class ContinueCommand extends Command {
             var vm = getVm();
             vm.eventRequestManager().deleteEventRequests(vm.eventRequestManager().stepRequests());
             System.out.println("Continue - execution will resume until next breakpoint");
-            vm.resume();
         } catch (Exception e) {
             System.out.println("Error executing continue: " + e.getMessage());
         }

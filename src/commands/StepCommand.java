@@ -25,7 +25,6 @@ public class StepCommand extends Command {
             stepRequest.enable();
 
             System.out.println("Step into enabled");
-            vm.resume();
         } catch (Exception e) {
             System.out.println("Error executing step: " + e.getMessage());
         }
