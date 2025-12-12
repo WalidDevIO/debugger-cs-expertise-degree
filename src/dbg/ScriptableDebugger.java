@@ -48,19 +48,18 @@ public class ScriptableDebugger {
         commandList.forEach(commandRegistry::register);
     }
 
-    public VirtualMachine connectAndLaunchVM() throws IOException, IllegalConnectorArgumentsException, VMStartException {
+    public void connectAndLaunchVM() throws IOException, IllegalConnectorArgumentsException, VMStartException {
         LaunchingConnector launchingConnector = Bootstrap.virtualMachineManager().defaultConnector();
         Map<String, Connector.Argument> arguments = launchingConnector.defaultArguments();
         arguments.get("main").setValue(debugClass.getName());
         vm = launchingConnector.launch(arguments);
-        return vm;
     }
     public void attachTo(Class<?> debuggeeClass) {
 
         this.debugClass = debuggeeClass;
         try {
-            vm = connectAndLaunchVM();
-            enableClassPrepareRequest(vm);
+            connectAndLaunchVM();
+            enableClassPrepareRequest();
             startDebugger();
         } catch (VMDisconnectedException e) {
             System.out.println("Virtual Machine is disconnected: " + e);
@@ -129,7 +128,7 @@ public class ScriptableDebugger {
         return vm;
     }
 
-    public void enableClassPrepareRequest(VirtualMachine vm) {
+    public void enableClassPrepareRequest() {
         ClassPrepareRequest classPrepareRequest = vm.eventRequestManager().createClassPrepareRequest();
         classPrepareRequest.addClassFilter(debugClass.getName());
         classPrepareRequest.enable();
