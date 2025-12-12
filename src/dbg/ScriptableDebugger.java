@@ -27,6 +27,9 @@ public class ScriptableDebugger {
         commandRegistry.register(new StepCommand(this));
         commandRegistry.register(new StepOverCommand(this));
         commandRegistry.register(new HelpCommand(this, commandRegistry));
+        commandRegistry.register(new FrameCommand(this));
+        commandRegistry.register(new TemporariesCommand(this));
+        commandRegistry.register(new StackCommand(this));
     }
 
     public VirtualMachine connectAndLaunchVM() throws IOException, IllegalConnectorArgumentsException, VMStartException {
@@ -55,8 +58,6 @@ public class ScriptableDebugger {
         EventSet eventSet;
         while ((eventSet = vm.eventQueue().remove()) != null) {
             for (Event event : eventSet) {
-                System.out.println(event.toString());
-
                 if(event instanceof VMDisconnectEvent) {
                     System.out.println("----- Fin du programme.");
                     InputStreamReader reader = new InputStreamReader(vm.process().getInputStream());
@@ -109,6 +110,7 @@ public class ScriptableDebugger {
     }
 
     public void readCommand(LocatableEvent event) throws IOException {
+        System.out.println("Debugger is at: " + event.toString());
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         String command = reader.readLine();
 
@@ -116,6 +118,7 @@ public class ScriptableDebugger {
             commandRegistry.getCommand(command).execute(event);
         } else {
             System.out.println("Commande " + command + " inexistante.");
+            readCommand(event);
         }
     }
 
