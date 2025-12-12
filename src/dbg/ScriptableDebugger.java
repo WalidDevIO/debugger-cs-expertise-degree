@@ -8,11 +8,7 @@ import com.sun.jdi.connect.VMStartException;
 import com.sun.jdi.event.*;
 import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.ClassPrepareRequest;
-import com.sun.jdi.request.StepRequest;
-import commands.CommandRegistry;
-import commands.ContinueCommand;
-import commands.StepCommand;
-import commands.StepOverCommand;
+import commands.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,6 +26,7 @@ public class ScriptableDebugger {
         commandRegistry.register(new ContinueCommand(this));
         commandRegistry.register(new StepCommand(this));
         commandRegistry.register(new StepOverCommand(this));
+        commandRegistry.register(new HelpCommand(this, commandRegistry));
     }
 
     public VirtualMachine connectAndLaunchVM() throws IOException, IllegalConnectorArgumentsException, VMStartException {
