@@ -6,14 +6,14 @@ import com.sun.jdi.StackFrame;
 import com.sun.jdi.event.LocatableEvent;
 import dbg.ScriptableDebugger;
 
-public class SenderCommand extends Command<Void> {
+public class SenderCommand extends Command<ObjectReference> {
 
     public SenderCommand(ScriptableDebugger debugger) {
         super(debugger);
     }
 
     @Override
-    public Void execute(LocatableEvent event, String[] args) {
+    public ObjectReference execute(LocatableEvent event, String[] args) {
         try {
             if (event.thread().frameCount() < 2) {
                 System.out.println("No sender (top of call stack)");
@@ -29,6 +29,9 @@ public class SenderCommand extends Command<Void> {
             } else {
                 System.out.println("Sender: " + callerThis.referenceType().name() + "@" + callerThis.uniqueID());
             }
+
+            getDebugger().readCommand(event);
+            return callerThis;
         } catch (IncompatibleThreadStateException e) {
             System.out.println("Error: Thread not suspended - " + e.getMessage());
         } catch (Exception e) {

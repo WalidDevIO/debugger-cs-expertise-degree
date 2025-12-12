@@ -6,14 +6,14 @@ import com.sun.jdi.StackFrame;
 import com.sun.jdi.event.LocatableEvent;
 import dbg.ScriptableDebugger;
 
-public class FrameCommand extends Command<Void> {
+public class FrameCommand extends Command<StackFrame> {
 
     public FrameCommand(ScriptableDebugger debugger) {
         super(debugger);
     }
 
     @Override
-    public Void execute(LocatableEvent event, String[] args) {
+    public StackFrame execute(LocatableEvent event, String[] args) {
         try {
             StackFrame frame = event.thread().frame(0);
             System.out.println("Current frame:");
@@ -25,6 +25,8 @@ public class FrameCommand extends Command<Void> {
             } catch (AbsentInformationException e) {
                 System.out.println("  Line/Source info not available");
             }
+            getDebugger().readCommand(event);
+            return frame;
         } catch (IncompatibleThreadStateException e) {
             System.out.println("Error: Thread not suspended - " + e.getMessage());
         } catch (Exception e) {

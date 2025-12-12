@@ -6,14 +6,14 @@ import com.sun.jdi.StackFrame;
 import com.sun.jdi.event.LocatableEvent;
 import dbg.ScriptableDebugger;
 
-public class MethodCommand extends Command<Void> {
+public class MethodCommand extends Command<Method> {
 
     public MethodCommand(ScriptableDebugger debugger) {
         super(debugger);
     }
 
     @Override
-    public Void execute(LocatableEvent event, String[] args) {
+    public Method execute(LocatableEvent event, String[] args) {
         try {
             StackFrame frame = event.thread().frame(0);
             Method method = frame.location().method();
@@ -25,11 +25,15 @@ public class MethodCommand extends Command<Void> {
             System.out.println("  Return type: " + method.returnTypeName());
             System.out.println("  Is static: " + method.isStatic());
             System.out.println("  Is constructor: " + method.isConstructor());
+
+            getDebugger().readCommand(event);
+            return method;
         } catch (IncompatibleThreadStateException e) {
             System.out.println("Error: Thread not suspended - " + e.getMessage());
         } catch (Exception e) {
             System.out.println("Error getting method: " + e.getMessage());
         }
+
         getDebugger().readCommand(event);
         return null;
     }

@@ -23,7 +23,7 @@ public class HelpCommand extends Command<Void> {
     public Void execute(LocatableEvent event, String[] args) {
         System.out.println("JAVA Debugger help menu");
         System.out.println("-----------------------");
-        for(Command command : getDebugger().getCommandRegistry().getCommands()) {
+        for(Command<?> command : getDebugger().getCommandRegistry().getCommands()) {
             System.out.println(command.getName() + " : " + command.getDescription());
         }
         getDebugger().readCommand(event);

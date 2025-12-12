@@ -4,14 +4,19 @@ import com.sun.jdi.*;
 import com.sun.jdi.event.LocatableEvent;
 import dbg.ScriptableDebugger;
 
-public class ReceiverVariablesCommand extends Command<Void> {
+import java.util.HashMap;
+import java.util.Map;
+
+public class ReceiverVariablesCommand extends Command<Map<String, Value>> {
 
     public ReceiverVariablesCommand(ScriptableDebugger debugger) {
         super(debugger);
     }
 
     @Override
-    public Void execute(LocatableEvent event, String[] args) {
+    public Map<String, Value> execute(LocatableEvent event, String[] args) {
+        Map<String, Value> variables = new HashMap<>();
+
         try {
             StackFrame frame = event.thread().frame(0);
             ObjectReference thisObject = frame.thisObject();
@@ -19,7 +24,7 @@ public class ReceiverVariablesCommand extends Command<Void> {
             if (thisObject == null) {
                 System.out.println("No receiver (static method)");
                 getDebugger().readCommand(event);
-                return null;
+                return variables;
             }
 
             System.out.println("Receiver instance variables:");
@@ -28,6 +33,7 @@ public class ReceiverVariablesCommand extends Command<Void> {
             for (Field field : refType.allFields()) {
                 if (!field.isStatic()) {
                     Value value = thisObject.getValue(field);
+                    variables.put(field.name(), value);
                     System.out.println("  " + field.name() + " → " + formatValue(value));
                 }
             }
@@ -36,8 +42,9 @@ public class ReceiverVariablesCommand extends Command<Void> {
         } catch (Exception e) {
             System.out.println("Error getting receiver variables: " + e.getMessage());
         }
+
         getDebugger().readCommand(event);
-        return null;
+        return variables;
     }
 
     private String formatValue(Value value) {

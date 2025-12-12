@@ -4,14 +4,14 @@ import com.sun.jdi.*;
 import com.sun.jdi.event.LocatableEvent;
 import dbg.ScriptableDebugger;
 
-public class PrintVarCommand extends Command<Void> {
+public class PrintVarCommand extends Command<Value> {
 
     public PrintVarCommand(ScriptableDebugger debugger) {
         super(debugger);
     }
 
     @Override
-    public Void execute(LocatableEvent event, String[] args) {
+    public Value execute(LocatableEvent event, String[] args) {
         if (args.length == 0) {
             System.out.println("Error: Variable name required");
             System.out.println("Usage: print-var <varName>");
@@ -31,7 +31,7 @@ public class PrintVarCommand extends Command<Void> {
                     Value value = frame.getValue(localVar);
                     System.out.println(varName + " = " + formatValue(value));
                     getDebugger().readCommand(event);
-                    return null;
+                    return value;
                 }
             } catch (AbsentInformationException e) {
                 // Pas d'info sur les variables locales, continuer avec les fields
@@ -45,7 +45,7 @@ public class PrintVarCommand extends Command<Void> {
                     Value value = thisObject.getValue(field);
                     System.out.println(varName + " = " + formatValue(value));
                     getDebugger().readCommand(event);
-                    return null;
+                    return value;
                 }
             }
 
@@ -62,19 +62,13 @@ public class PrintVarCommand extends Command<Void> {
     }
 
     private String formatValue(Value value) {
-        if (value == null) return "null";
-        if (value instanceof StringReference) {
-            return "\"" + ((StringReference) value).value() + "\"";
-        }
-        if (value instanceof ArrayReference) {
-            ArrayReference array = (ArrayReference) value;
-            return "Array[" + array.length() + "]";
-        }
-        if (value instanceof ObjectReference) {
-            ObjectReference obj = (ObjectReference) value;
-            return obj.referenceType().name() + "@" + obj.uniqueID();
-        }
-        return value.toString();
+        return switch (value) {
+            case null -> "null";
+            case StringReference stringReference -> "\"" + stringReference.value() + "\"";
+            case ArrayReference array -> "Array[" + array.length() + "]";
+            case ObjectReference obj -> obj.referenceType().name() + "@" + obj.uniqueID();
+            default -> value.toString();
+        };
     }
 
     @Override

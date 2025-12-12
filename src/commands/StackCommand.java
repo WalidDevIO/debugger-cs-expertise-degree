@@ -1,23 +1,28 @@
 package commands;
 
-import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.IncompatibleThreadStateException;
 import com.sun.jdi.StackFrame;
 import com.sun.jdi.event.LocatableEvent;
 import dbg.ScriptableDebugger;
 
-public class StackCommand extends Command<Void> {
+import java.util.ArrayList;
+import java.util.List;
+
+public class StackCommand extends Command<List<StackFrame>> {
 
     public StackCommand(ScriptableDebugger debugger) {
         super(debugger);
     }
 
     @Override
-    public Void execute(LocatableEvent event, String[] args) {
+    public List<StackFrame> execute(LocatableEvent event, String[] args) {
+        List<StackFrame> stackFrames = new ArrayList<>();
+
         try {
             System.out.println("Call stack:");
             int depth = 0;
             for (StackFrame frame : event.thread().frames()) {
+                stackFrames.add(frame);
                 String methodName = frame.location().method().name();
                 String className = frame.location().declaringType().name();
 
@@ -30,8 +35,9 @@ public class StackCommand extends Command<Void> {
         } catch (Exception e) {
             System.out.println("Error getting stack: " + e.getMessage());
         }
+
         getDebugger().readCommand(event);
-        return null;
+        return stackFrames;
     }
 
     @Override

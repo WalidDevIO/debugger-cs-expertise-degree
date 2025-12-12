@@ -6,14 +6,14 @@ import com.sun.jdi.StackFrame;
 import com.sun.jdi.event.LocatableEvent;
 import dbg.ScriptableDebugger;
 
-public class ReceiverCommand extends Command<Void> {
+public class ReceiverCommand extends Command<ObjectReference> {
 
     public ReceiverCommand(ScriptableDebugger debugger) {
         super(debugger);
     }
 
     @Override
-    public Void execute(LocatableEvent event, String[] args) {
+    public ObjectReference execute(LocatableEvent event, String[] args) {
         try {
             StackFrame frame = event.thread().frame(0);
             ObjectReference thisObject = frame.thisObject();
@@ -23,6 +23,9 @@ public class ReceiverCommand extends Command<Void> {
             } else {
                 System.out.println("Receiver (this): " + thisObject.referenceType().name() + "@" + thisObject.uniqueID());
             }
+
+            getDebugger().readCommand(event);
+            return thisObject;
         } catch (IncompatibleThreadStateException e) {
             System.out.println("Error: Thread not suspended - " + e.getMessage());
         } catch (Exception e) {

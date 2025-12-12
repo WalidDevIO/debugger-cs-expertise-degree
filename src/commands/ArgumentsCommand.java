@@ -4,14 +4,19 @@ import com.sun.jdi.*;
 import com.sun.jdi.event.LocatableEvent;
 import dbg.ScriptableDebugger;
 
-public class ArgumentsCommand extends Command<Void> {
+import java.util.HashMap;
+import java.util.Map;
+
+public class ArgumentsCommand extends Command<Map<String, Value>> {
 
     public ArgumentsCommand(ScriptableDebugger debugger) {
         super(debugger);
     }
 
     @Override
-    public Void execute(LocatableEvent event, String[] args) {
+    public Map<String, Value> execute(LocatableEvent event, String[] args) {
+        Map<String, Value> arguments = new HashMap<>();
+
         try {
             StackFrame frame = event.thread().frame(0);
             Method method = frame.location().method();
@@ -21,12 +26,12 @@ public class ArgumentsCommand extends Command<Void> {
             try {
                 for (LocalVariable arg : method.arguments()) {
                     Value value = frame.getValue(arg);
+                    arguments.put(arg.name(), value);
                     System.out.println("  " + arg.name() + " → " + formatValue(value));
                 }
             } catch (AbsentInformationException e) {
                 System.out.println("Argument information not available (compile with -g)");
             }
-
         } catch (IncompatibleThreadStateException e) {
             System.out.println("Error: Thread not suspended - " + e.getMessage());
         } catch (Exception e) {
@@ -34,7 +39,7 @@ public class ArgumentsCommand extends Command<Void> {
         }
 
         getDebugger().readCommand(event);
-        return null;
+        return arguments;
     }
 
     private String formatValue(Value value) {
