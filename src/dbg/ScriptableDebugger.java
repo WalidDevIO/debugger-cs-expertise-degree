@@ -30,6 +30,9 @@ public class ScriptableDebugger {
         commandRegistry.register(new FrameCommand(this));
         commandRegistry.register(new TemporariesCommand(this));
         commandRegistry.register(new StackCommand(this));
+        commandRegistry.register(new ReceiverCommand(this));
+        commandRegistry.register(new SenderCommand(this));
+        commandRegistry.register(new MethodCommand(this));
     }
 
     public VirtualMachine connectAndLaunchVM() throws IOException, IllegalConnectorArgumentsException, VMStartException {
