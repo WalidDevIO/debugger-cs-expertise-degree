@@ -65,12 +65,11 @@ public class ScriptableDebugger {
         } catch (VMDisconnectedException e) {
             System.out.println("Virtual Machine is disconnected: " + e);
         } catch (Exception e) {
-            e.printStackTrace()
-            ;
+            e.printStackTrace();
         }
     }
 
-    public void startDebugger() throws VMDisconnectedException, InterruptedException, AbsentInformationException, IOException {
+    public void startDebugger() throws VMDisconnectedException, InterruptedException {
         EventSet eventSet;
         while ((eventSet = vm.eventQueue().remove()) != null) {
             for (Event event : eventSet) {
@@ -97,11 +96,11 @@ public class ScriptableDebugger {
                                     // Trouver la première ligne exécutable du main
                                     List<Location> locations = method.allLineLocations();
                                     if(!locations.isEmpty()) {
-                                        Location firstLocation = locations.get(0);
+                                        Location firstLocation = locations.getFirst();
                                         BreakpointRequest bpReq = vm.eventRequestManager()
                                                 .createBreakpointRequest(firstLocation);
                                         bpReq.enable();
-                                        System.out.println("Breakpoint set at main() line " +
+                                        System.out.println("Default breakpoint set at main() line " +
                                                 firstLocation.lineNumber());
                                     }
                                     break;
@@ -128,16 +127,6 @@ public class ScriptableDebugger {
 
     public VirtualMachine getVm() {
         return vm;
-    }
-
-    public void setBreakPoint(String className, int lineNumber) throws AbsentInformationException {
-        for (ReferenceType targetClass : vm.allClasses()) {
-            if (targetClass.name().equals(className)) {
-                Location location = targetClass.locationsOfLine(lineNumber).getFirst();
-                BreakpointRequest bpReq = vm.eventRequestManager().createBreakpointRequest(location);
-                bpReq.enable();
-            }
-        }
     }
 
     public void enableClassPrepareRequest(VirtualMachine vm) {
